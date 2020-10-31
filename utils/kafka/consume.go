@@ -1,73 +1,67 @@
 package kafka
 
 import (
+	"context"
 	"github.com/Shopify/sarama"
 	"lll/study/log"
-	"sync"
+	"lll/study/utils/metric"
+	_ "lll/study/utils/metric"
 )
 
-// TODO  metric
-
-
+// 一个消费者消费全部的partition
 type KafkaConsumer struct {
-	Consumer sarama.Consumer
-	Topic string
-	Output chan string
+	consumer sarama.Consumer
+	topic string
+	output chan string
 }
 
-func NewConsumer(addrs []string)(KafkaConsumer,error){
+func NewConsumer(addrs []string)(*KafkaConsumer,error){
 
 	config := sarama.NewConfig()
-	config.Version = sarama.V0_10_2_0
+	config.Version = sarama.V2_5_0_0
 	consumer,err :=sarama.NewConsumer(addrs,config)
 	if err!=nil{
 		return nil,err
 	}
-	return KafkaConsumer{Consumer: consumer},nil
+	return &KafkaConsumer{consumer: consumer,topic: "test",output: make(chan string)},nil
 }
 
-// 按 partition 消费数据
-func (c *KafkaConsumer) ConsumePartitions(){
 
-	partitions,err:= c.Consumer.Partitions(c.Topic)
+func (c*KafkaConsumer) Output()chan string{
+	return c.output
+}
+
+// 每个partition 都起一个 goroutine 消费
+func (c *KafkaConsumer) ConsumePartitions(ctx context.Context){
+
+	partitions,err:= c.consumer.Partitions(c.topic)
+	log.Logger.Infof("get partitions %v",partitions)
 	if err!=nil{
 		log.Logger.Error(err.Error())
 		return
 	}
-
-	var wg sync.WaitGroup
 	for _,partition := range partitions{
-		pc,err := c.Consumer.ConsumePartition(c.Topic,partition,sarama.OffsetNewest)
+		pc,err := c.consumer.ConsumePartition(c.topic,partition,sarama.OffsetNewest)
 		if err!=nil{
 			return
 		}
-		defer pc.AsyncClose()
-
-		wg.Add(1)
-		go func(pc sarama.PartitionConsumer) {
-/*			for{
+		log.Logger.Infof("start go routine to consume partition[%d]",partition)
+		go func(ctx context.Context) {
+			defer pc.AsyncClose()
+			for {
 				select {
-				case message :=<- pc.Messages():
-					log.Logger.Infof("get message :%s",message)
-					c.Output <- string(message.Value)
-				case err:= <- pc.Errors():
-					log.Logger.Errorf(err.Error())
+				case message,ok := <-pc.Messages():
+					if !ok{
+						log.Logger.Infof("chanel clonsed")
+						return
+					}
+					log.Logger.Infof("get message :%s",string(message.Value))
+					c.output <- string(message.Value)
+					metric.ConsumeTotal.Inc()
+				case <-ctx.Done():
+					log.Logger.Info("ctx done")
 				}
 			}
-
- */
-			defer wg.Done()
-			for message := range pc.Messages(){
-				log.Logger.Infof("get message :%s",message)
-				c.Output <- string(message.Value)
-			}
-
-		}(pc)
+		}(ctx)
 	}
-	wg.Wait()
-}
-
-// group 形式消费分组数据
-func (c *KafkaConsumer) Consume(){
-
 }
