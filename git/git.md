@@ -14,3 +14,21 @@ rebase 会把当前分支的commit 放到公共分支的后面，所以叫变基
 
 rebase 还可以合并 commit , git rebase -i HEAD~n 将多个commit 合并成一个， 这其实也是变基，不同于rēbase master ，它变的基是本分支之前的一个版本。
 
+##### git reset
+
+soft 软重置 ，你在分支 1 2 后 加了一个a.txt，commit ,再 加一个b.txt ，commit, 那么分支会变成 1 2 3 4， 但是如果你不想要后两次提交，但想保留提交的两个文件，那么可以执行 git reset --soft HEAD~2 
+
+hard 则是将后两次的修改全部抛弃，只保留2的信息
+
+##### git revert  还原
+git revert commitid ,还是上面的例子，在提交了 3 4 后，我不想要 a.txt 了，那么可以撤销3  git revert 3, 执行完成后会变成 1 2 4 5，这个5 就是问了完成撤销3 引入的修改。
+
+##### git cherry-pick
+有个 v1 版本已经上线，现在正在开发 v2版本，但是产品说我们需要将v2的一个版本先上线，那么这时候就可以用 在v1 基础上拉一个 v1.1 ,然后 git cherry-pick v2的某个commitid
+
+###### git fetch
+你在公司提交了一些 commit 到你的开发分支，你回家后，用家里的电脑，执行 git fetch origin dev , 就可以拉去你之前的提交，只是单纯的拉数据
+
+
+##### git pull
+git fetch + git merge
