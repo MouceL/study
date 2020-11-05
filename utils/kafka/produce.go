@@ -33,13 +33,7 @@ func NewProducer(addrs []string,topic string)(*producer,error){
 	},nil
 }
 
-
-
-
-// 如果是少量数据还是用 同步的合适 ， 可以明确的知道发送的消息是否接受成功
 func (p *producer)SendMessageAsync(input chan string){
-
-
 	for message := range input{
 		msg := &sarama.ProducerMessage{Topic: p.topic,Key:nil,Value: sarama.StringEncoder(message)}
 		select {
@@ -50,12 +44,15 @@ func (p *producer)SendMessageAsync(input chan string){
 			log.Logger.Errorf("produce msg err,%s",err)
 		case _,ok := <- p.p.Successes():
 			if !ok{
-
+				break
 			}
 			metric.ProduceSuccessCount.Inc()
 		}
 	}
 }
+
+
+
 func (p *producer)Close(){
 	if p.p !=nil{
 		err := p.p.Close()
@@ -71,6 +68,9 @@ func (p *producer)Close(){
 	}
 }
 
+
+
+// 同步方式，适合发送一些频率不高的信息
 
 func NewSyncProducer(addrs []string,topic string)(*producer,error){
 	config := sarama.NewConfig()
