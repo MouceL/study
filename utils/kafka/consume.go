@@ -9,13 +9,13 @@ import (
 )
 
 // 一个消费者消费全部的partition
-type KafkaConsumer struct {
+type ConsumerManager struct {
 	consumer sarama.Consumer
 	topic string
 	output chan string
 }
 
-func NewConsumer(addrs []string)(*KafkaConsumer,error){
+func NewConsumer(addrs []string)(*ConsumerManager,error){
 
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_5_0_0
@@ -23,16 +23,16 @@ func NewConsumer(addrs []string)(*KafkaConsumer,error){
 	if err!=nil{
 		return nil,err
 	}
-	return &KafkaConsumer{consumer: consumer,topic: "test",output: make(chan string)},nil
+	return &ConsumerManager{consumer: consumer,topic: "test",output: make(chan string)},nil
 }
 
 
-func (c*KafkaConsumer) Output()chan string{
+func (c*ConsumerManager) Output()chan string{
 	return c.output
 }
 
 // 每个partition 都起一个 goroutine 消费
-func (c *KafkaConsumer) ConsumePartitions(ctx context.Context){
+func (c *ConsumerManager) ConsumePartitions(ctx context.Context){
 
 	partitions,err:= c.consumer.Partitions(c.topic)
 	log.Logger.Infof("get partitions %v",partitions)

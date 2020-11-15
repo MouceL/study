@@ -16,7 +16,7 @@ type worker struct {
 	ctx context.Context
 }
 // 显示的提供一个 new 函数，说明这些参数是必要的，不要遗漏
-func newWorker(telpool chan chan string ,ctx context.Context) *worker{
+func newWorker(telpool chan chan string ,ctx context.Context) *worker {
 	return &worker{
 		tel:     make(chan string),
 		telpool: telpool,
@@ -48,7 +48,7 @@ type manager struct {
 	cancel context.CancelFunc
 }
 
-func (m * manager) run(){
+func (m *manager) run(){
 	for i:=0;i<m.workers;i++{
 		worker := newWorker(m.telpool,m.ctx)
 		go worker.run()
@@ -56,7 +56,7 @@ func (m * manager) run(){
 	go m.dispatch()
 }
 
-func (m * manager)dispatch(){
+func (m *manager)dispatch(){
 
 	for{
 		select {
@@ -88,7 +88,7 @@ func (w *worker1)run()  {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for task := range ch{
+			for task := range ch {
 				fmt.Printf("%s",task)
 			}
 		}()
