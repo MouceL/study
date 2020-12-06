@@ -1,25 +1,28 @@
 package redis
 
-import "github.com/go-redis/redis"
+import (
+	"context"
+	"lll/study/log"
+	"time"
+)
 
 func Subscribe(topic string){
-	sub := rdb.Subscribe(topic)
-	iface, err := sub.Receive()
+	ctx := context.TODO()
+	sub := rdb.Subscribe(ctx,topic)
+
+	_, err := sub.Receive(ctx)
 	if err != nil {
-		// handle error
-	}
-	// Should be *Subscription, but others are possible if other actions have been
-	// taken on sub since it was created.
-	switch iface.(type) {
-	case *redis.Subscription:
-		// subscribe succeeded
-	case *redis.Message:
-		// received first message
-	case *redis.Pong:
-		// pong received
-	default:
-		// handle error
+		panic(err)
 	}
 
 	ch := sub.Channel()
+
+	time.AfterFunc(time.Second, func() {
+		// When pubsub is closed channel is closed too.
+		_ = sub.Close()
+	})
+
+	for msg := range ch {
+		log.Logger.Info(msg.Channel, msg.Payload)
+	}
 }
