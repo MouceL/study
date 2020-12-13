@@ -38,8 +38,15 @@ serviceAccount 就是一类用户身份， 然后通过 bind 将 一些权限赋
 serviceAccount  rolebind  role
 
 serviceAccount clusterrolebind clusterrole
+~~~
+
 
 ~~~
+kubectl config get-contexts
+kubectl config use-context
+k9s kubeconfig  ~/.kube/xx
+~~~
+
 
 
 https://www.jianshu.com/p/9991f189495f

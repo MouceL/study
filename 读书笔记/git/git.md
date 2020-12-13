@@ -32,3 +32,9 @@ git revert commitid ,还是上面的例子，在提交了 3 4 后，我不想要
 
 ##### git pull
 git fetch + git merge
+
+
+~~~
+git remote get-url
+git remote origin set-url
+~~~
