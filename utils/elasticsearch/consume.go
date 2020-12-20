@@ -19,12 +19,10 @@ func produce() error {
 
 	for {
 		select {
-		case <- g.Output():
+		case msg := <- g.Output():
 
 		}
 	}
-
-
 	return nil
 }
 

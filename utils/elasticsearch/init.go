@@ -2,6 +2,8 @@ package elasticsearch
 
 import (
 	es "gopkg.in/olivere/elastic.v5"
+	array "lll/study/utils/limitarray"
+	"sync"
 	"time"
 )
 
@@ -18,8 +20,8 @@ func GetEsClient(url,user,password string) (*es.Client,error) {
 }
 
 type IndexRequest struct {
-	index string // 要写到哪个索引
-	raw string
+	Index string
+	Raw string
 }
 
 type SearchRequest struct {
@@ -27,4 +29,10 @@ type SearchRequest struct {
 	end time.Time
 	keyword string
 	appName string
+}
+
+var ArrayPool = sync.Pool{
+	New: func()interface{}{
+		return array.NewLimitarray(1000)
+	},
 }
