@@ -25,10 +25,18 @@ type IndexRequest struct {
 }
 
 type SearchRequest struct {
-	start time.Time
-	end time.Time
-	keyword string
-	appName string
+	Start time.Time
+	End time.Time
+	Keyword string
+	AppName string
+	Match []Match
+	Sort bool
+	From int
+	Size int
+}
+
+type Match struct {
+	Eq map[string][]interface{}
 }
 
 var ArrayPool = sync.Pool{

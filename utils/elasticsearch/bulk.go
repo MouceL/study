@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// 来的所有消息都先写入 array , 当达到一定个数后，一次性写入一个 array
+
 type BulkRequest struct {
 	array limitarray.Limitarray
 	output chan limitarray.Limitarray
@@ -23,8 +25,8 @@ func NewBulkRequest(ctx context.Context) *BulkRequest{
 func (b *BulkRequest)Run( input chan interface{}) {
 
 	go func() {
-		tick := time.NewTicker(time.Second)
-		for false {
+		tick := time.NewTicker(5*time.Second)
+		for {
 			select {
 			case  request := <- input :
 				b.Add2Array(request)
@@ -37,6 +39,7 @@ func (b *BulkRequest)Run( input chan interface{}) {
 	}()
 }
 
+// TODO 要不要 + lock , 不要 消息是一个一个处理的 不会出现一下子处理两个消息
 func (b *BulkRequest) Add2Array(obj interface{}) {
 
 	if b.array.IsFull() {
