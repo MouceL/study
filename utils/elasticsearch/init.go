@@ -35,12 +35,26 @@ type SearchRequest struct {
 	Size int
 }
 
+type Range struct {
+	Lt interface{}
+	Lte interface{}
+	Gt interface{}
+	Gte interface{}
+}
+
+
 type Match struct {
 	Eq map[string][]interface{}
+	Range map[string]Range
+	SimpleQuery map[string]string
+	Substring []string // _all 字段是否包含 关键字
 }
+
 
 var ArrayPool = sync.Pool{
 	New: func()interface{}{
 		return array.NewLimitarray(1000)
 	},
 }
+
+
