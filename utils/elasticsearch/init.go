@@ -27,7 +27,6 @@ type IndexRequest struct {
 type SearchRequest struct {
 	Start time.Time
 	End time.Time
-	Keyword string
 	AppName string
 	Match []Match
 	Sort bool

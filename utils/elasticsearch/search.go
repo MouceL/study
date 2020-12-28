@@ -18,9 +18,11 @@ func NewSearchManager() *SearchManager {
 
 func (s *SearchManager) Search(r *SearchRequest)(*es.SearchResult,error){
 
+	indices := s.GetIndicesByTime()
+
 	result,err := s.svc.
 		Type("data").
-		Index().
+		Index(indices...).
 		SortWithInfo(es.SortInfo{Field:TIMESTAMP, Ascending:false}).
 		Query(s.GenerateQuery(r)).
 		AllowNoIndices(true).
@@ -158,6 +160,16 @@ func (s *SearchManager) setSubString(query *es.BoolQuery,filter map[string][]str
 
 // TODO other query
 
+func (s *SearchManager) GetIndicesByTime() []string{
+
+	indices := make([]string,0)
+
+	//TODO
+
+	return indices
+}
+
+
 
 // TODO 根据需求写格式
 func (s *SearchManager) Wrap(result *es.SearchResult) *es.SearchResult{
@@ -172,3 +184,8 @@ func (s *SearchManager) SearchContext(*es.SearchResult,error){
 }
 
 // scroll
+
+
+func searilize() {
+
+}
